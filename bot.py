@@ -5,7 +5,6 @@ import producthunt_rss
 
 token = os.environ.get("TELEGRAM_TOKEN")
 TelegramBot = telepot.Bot(token)
-print TelegramBot.getMe()
 
 
 def display_help():
@@ -44,3 +43,21 @@ def save_latest_offset(offset):
     config_file = open('config.txt', 'w')
     config_file.write(str(offset))
     config_file.close()
+
+
+# Getting latest offset
+latest_offset = get_latest_offset()
+
+while True:
+    updates = TelegramBot.getUpdates(latest_offset)
+    for update in updates:
+        message_text = update['message']['text']
+        chat_id = update['message']['chat']['id']
+        if message_text == 'help' or message_text == '/start':
+            TelegramBot.sendMessage(chat_id, display_help())
+        elif message_text == 'feed':
+            TelegramBot.sendMessage(chat_id, display_ph_feed())
+        else:
+            TelegramBot.sendMessage(chat_id, display_dont_understand())
+        latest_offset = int(update['update_id']) + 1
+        save_latest_offset(latest_offset)
