@@ -1,6 +1,13 @@
 # -*- coding: utf8 -*-
+import re
 from xml.etree import cElementTree
 import requests
+
+
+def clean_tag_from_xmlns(node_tag):
+    # Remove everything between curly braces
+    clean_tag = re.sub(r'(\{.*?\})', '', node_tag)
+    return clean_tag
 
 
 def parse_producthunt_rss():
@@ -10,14 +17,12 @@ def parse_producthunt_rss():
     parsed_xml = cElementTree.fromstring(response.content)
     items = []
     for node in parsed_xml.iter():
-        if node.tag == '{http://www.w3.org/2005/Atom}entry':
+        if clean_tag_from_xmlns(node.tag) == 'entry':
             item = {}
             for item_node in list(node):
-                if item_node.tag == '{http://www.w3.org/2005/Atom}title':
+                if clean_tag_from_xmlns(item_node.tag) == 'title':
                     item['title'] = item_node.text
-                if item_node.tag == '{http://www.w3.org/2005/Atom}link':
+                if clean_tag_from_xmlns(item_node.tag) == 'link':
                     item['link'] = item_node.text
             items.append(item)
     return items[:10]
-
-
