@@ -23,6 +23,6 @@ def parse_producthunt_rss():
                 if clean_tag_from_xmlns(item_node.tag) == 'title':
                     item['title'] = item_node.text
                 if clean_tag_from_xmlns(item_node.tag) == 'link':
-                    item['link'] = item_node.text
+                    item['link'] = item_node.get("href")
             items.append(item)
     return items[:10]
